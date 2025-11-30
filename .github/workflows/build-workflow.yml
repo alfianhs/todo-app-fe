@@ -52,4 +52,4 @@ jobs:
         run: docker push "${{ steps.meta.outputs.IMAGE }}"
 
       - name: Done
-        run: echo "Image pushed: ${{ steps.meta.outputs.IMAGE }}"
+        run: echo "Image pushed:${{ steps.meta.outputs.IMAGE }}"
