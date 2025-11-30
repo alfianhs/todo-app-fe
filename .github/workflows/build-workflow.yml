@@ -24,7 +24,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: 'pnpm'
+          cache: pnpm
 
       - name: Install deps
         run: pnpm install --frozen-lockfile
@@ -51,5 +51,11 @@ jobs:
       - name: Push Docker Image
         run: docker push "${{ steps.meta.outputs.IMAGE }}"
 
-      - name: Done
-        run: echo "Image pushed:${{ steps.meta.outputs.IMAGE }}"
+      - name: Add summary
+        run: |
+          echo "## 🎉 Build Completed" >> $GITHUB_STEP_SUMMARY
+          echo "Image pushed to GHCR:" >> $GITHUB_STEP_SUMMARY
+          echo "\`${{ steps.meta.outputs.IMAGE }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 👉 Pull command:" >> $GITHUB_STEP_SUMMARY
+          echo "\`docker pull ${{ steps.meta.outputs.IMAGE }}\`" >> $GITHUB_STEP_SUMMARY
