@@ -1,7 +1,7 @@
 name: FE Manual Build
 
 on:
-  workflow_dispatch:   # manual trigger
+  workflow_dispatch:
 
 jobs:
   build:
@@ -11,7 +11,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Inject ENV from Secrets
+      # Generate .env.production untuk Vite
       - name: Generate .env.production
         run: |
           echo "VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}" >> .env.production
@@ -26,7 +26,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: "pnpm"
+          cache: 'pnpm'
 
       - name: Install deps
         run: pnpm install --frozen-lockfile
@@ -42,18 +42,20 @@ jobs:
           username: ${{ secrets.CR_USERNAME }}
           password: ${{ secrets.CR_PASSWORD }}
 
-      # Buat image tag
+      # Build output tag
       - name: Set image name
         id: meta
-        run: echo "IMAGE=ghcr.io/${{ secrets.CR_USERNAME }}/todo-app-fe:${{ github.sha }}" >> $GITHUB_OUTPUT
+        run: |
+          IMAGE="ghcr.io/${{ secrets.CR_USERNAME }}/todo-app-fe:${{ github.sha }}"
+          echo "IMAGE=$IMAGE" >> $GITHUB_OUTPUT
 
-      # Build Docker Image
+      # Build Docker
       - name: Build Docker Image
-        run: docker build -t ${{ steps.meta.outputs.IMAGE }} .
+        run: docker build -t "${{ steps.meta.outputs.IMAGE }}" .
 
-      # Push Docker Image
+      # Push Docker
       - name: Push Docker Image
-        run: docker push ${{ steps.meta.outputs.IMAGE }}
+        run: docker push "${{ steps.meta.outputs.IMAGE }}"
 
       - name: Done
         run: echo "Image pushed: ${{ steps.meta.outputs.IMAGE }}"
