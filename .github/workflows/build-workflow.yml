@@ -11,12 +11,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Generate .env.production untuk Vite
       - name: Generate .env.production
         run: |
           echo "VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}" >> .env.production
 
-      # Setup pnpm
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
@@ -34,7 +32,6 @@ jobs:
       - name: Build FE
         run: pnpm build
 
-      # Login ke GHCR
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
@@ -42,18 +39,15 @@ jobs:
           username: ${{ secrets.CR_USERNAME }}
           password: ${{ secrets.CR_PASSWORD }}
 
-      # Build output tag
       - name: Set image name
         id: meta
         run: |
           IMAGE="ghcr.io/${{ secrets.CR_USERNAME }}/todo-app-fe:${{ github.sha }}"
           echo "IMAGE=$IMAGE" >> $GITHUB_OUTPUT
 
-      # Build Docker
       - name: Build Docker Image
         run: docker build -t "${{ steps.meta.outputs.IMAGE }}" .
 
-      # Push Docker
       - name: Push Docker Image
         run: docker push "${{ steps.meta.outputs.IMAGE }}"
 
